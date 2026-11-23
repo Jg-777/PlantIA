@@ -1,0 +1,2677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlantIA | Inteligencia para el cuidado de tus plantas</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{
+  --bg:#f3f7f4;
+  --surface:#ffffff;
+  --surface-soft:#ecf4ee;
+  --green-primary:#1f6b43;
+  --green-dark:#123f27;
+  --green-mid:#2d8556;
+  --green-light:#e2f1e6;
+  --mint:#cbe9d4;
+  --text:#17261c;
+  --muted:#5a6b5e;
+  --border:#d5e3d8;
+  --gold:#f2c144;
+  --gold-dark:#3d2f08;
+  --amber:#d97706;
+  --amber-bg:#fef3c7;
+  --danger:#c92a2a;
+  --danger-bg:#fff5f5;
+  --radius-sm:10px;
+  --radius-md:16px;
+  --radius-lg:22px;
+  --sidebar-w:256px;
+  --shadow-sm:0 4px 12px rgba(18,63,39,.05);
+  --shadow-md:0 12px 28px -6px rgba(18,63,39,.10);
+  --shadow-lg:0 20px 40px -12px rgba(18,63,39,.16);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+
+/* Animations */
+@keyframes fadeSlideIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes cardPop{
+  from{opacity:0;transform:translateY(10px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+@keyframes gentleLeaf{
+  0%,100%{transform:scale(1) rotate(0deg)}
+  50%{transform:scale(1.05) rotate(2.5deg)}
+}
+
+@keyframes pulseRing{
+  0%{box-shadow:0 0 0 0 rgba(31,107,67,.35)}
+  70%{box-shadow:0 0 0 14px rgba(31,107,67,0)}
+  100%{box-shadow:0 0 0 0 rgba(31,107,67,0)}
+}
+
+@keyframes shimmer{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+
+@keyframes cartBounce{
+  0%,100%{transform:scale(1)}
+  40%{transform:scale(1.22)}
+  70%{transform:scale(.95)}
+}
+
+.view-enter{animation:fadeSlideIn .24s ease-out both}
+.leaf-float{animation:gentleLeaf 3.6s ease-in-out infinite}
+.pulse-ai{animation:pulseRing 1.8s infinite}
+.badge-bounce{animation:cartBounce .38s ease}
+
+.stagger > *{
+  opacity:0;
+  animation:cardPop .32s ease-out forwards;
+}
+.stagger > *:nth-child(1){animation-delay:.03s}
+.stagger > *:nth-child(2){animation-delay:.07s}
+.stagger > *:nth-child(3){animation-delay:.11s}
+.stagger > *:nth-child(4){animation-delay:.15s}
+.stagger > *:nth-child(5){animation-delay:.19s}
+.stagger > *:nth-child(6){animation-delay:.23s}
+.stagger > *:nth-child(7){animation-delay:.27s}
+.stagger > *:nth-child(8){animation-delay:.31s}
+
+.skeleton{
+  background:linear-gradient(90deg,#e7efe9 25%,#f4f9f5 50%,#e7efe9 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite linear;
+  border-radius:var(--radius-sm);
+}
+
+/* Login / Auth */
+.login-screen{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(45,133,86,.16), transparent 42%),
+    radial-gradient(circle at 85% 90%, rgba(242,193,68,.18), transparent 45%),
+    var(--bg);
+}
+
+.login-box{
+  width:100%;
+  max-width:430px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:32px 28px;
+  box-shadow:var(--shadow-lg);
+  animation:cardPop .35s ease-out both;
+}
+
+.login-brand{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  margin-bottom:22px;
+}
+
+.brandmark{
+  height:42px;
+  width:42px;
+  border-radius:13px;
+  background:linear-gradient(135deg,var(--green-mid),var(--green-primary));
+  color:#fff;
+  display:grid;
+  place-items:center;
+  box-shadow:0 8px 18px rgba(31,107,67,.25);
+  flex-shrink:0;
+}
+
+.brandmark.lg{height:58px;width:58px;border-radius:16px;margin-bottom:12px}
+
+.brand{
+  font-weight:800;
+  font-size:1.22rem;
+  color:var(--green-dark);
+  letter-spacing:-.02em;
+  line-height:1.15;
+}
+
+.brand small{
+  display:block;
+  color:var(--muted);
+  font-size:.75rem;
+  font-weight:500;
+  margin-top:2px;
+}
+
+.login-title{
+  margin:0 0 6px;
+  font-size:1.45rem;
+  font-weight:800;
+  color:var(--green-dark);
+  text-align:center;
+}
+
+.login-desc{
+  margin:0 0 22px;
+  font-size:.92rem;
+  color:var(--muted);
+  text-align:center;
+}
+
+.login-error{
+  color:var(--danger);
+  background:var(--danger-bg);
+  border-radius:var(--radius-sm);
+  padding:0 12px;
+  font-size:.85rem;
+  font-weight:600;
+  margin-bottom:12px;
+  max-height:0;
+  overflow:hidden;
+  opacity:0;
+  transition:all .2s ease;
+}
+
+.login-error.show{
+  padding:9px 12px;
+  max-height:90px;
+  opacity:1;
+}
+
+/* App Shell & Sidebar */
+.app-shell{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:var(--sidebar-w) 1fr;
+}
+
+.sidebar{
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  position:sticky;
+  top:0;
+  height:100vh;
+  z-index:40;
+  transition:transform .25s ease;
+}
+
+.sidebar-head{
+  padding:20px 18px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.ai-status{
+  margin:14px 16px 6px;
+  padding:8px 12px;
+  border-radius:var(--radius-sm);
+  background:var(--surface-soft);
+  border:1px solid var(--border);
+  font-size:.78rem;
+  font-weight:600;
+  color:var(--green-dark);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.status-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#22c55e;
+  box-shadow:0 0 0 3px rgba(34,197,94,.2);
+  flex-shrink:0;
+}
+
+.nav-scroll{
+  flex:1;
+  overflow-y:auto;
+  padding:10px 12px;
+}
+
+.nav-group-label{
+  font-size:.7rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--muted);
+  padding:12px 10px 6px;
+}
+
+.nav-list{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.nav-item{
+  width:100%;
+  text-align:left;
+  color:var(--text);
+  border-radius:var(--radius-sm);
+  padding:10px 12px;
+  font-size:.9rem;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  transition:background .16s ease,color .16s ease,transform .12s ease;
+}
+
+.nav-item:hover{
+  background:var(--surface-soft);
+  color:var(--green-dark);
+  transform:translateX(2px);
+}
+
+.nav-item.active{
+  background:var(--green-primary);
+  color:#fff;
+  box-shadow:0 6px 14px rgba(31,107,67,.22);
+}
+
+.nav-item.active .pill{
+  background:rgba(255,255,255,.24);
+  color:#fff;
+}
+
+.nav-item .nav-label{flex:1}
+
+.sidebar-foot{
+  padding:14px;
+  border-top:1px solid var(--border);
+  background:#fafcfa;
+}
+
+.user-card{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  margin-bottom:10px;
+}
+
+.avatar{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  background:var(--mint);
+  color:var(--green-dark);
+  font-weight:800;
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+}
+
+.user-meta{min-width:0;flex:1}
+.user-meta strong{
+  display:block;
+  font-size:.86rem;
+  color:var(--green-dark);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.role-badge{
+  display:inline-block;
+  background:var(--green-light);
+  color:var(--green-primary);
+  font-size:.68rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  padding:1px 7px;
+  border-radius:999px;
+}
+
+.sidebar-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,35,23,.45);
+  backdrop-filter:blur(2px);
+  z-index:35;
+}
+
+/* Main Workspace */
+.workspace{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+
+.topbar{
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  padding:12px 24px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  position:sticky;
+  top:0;
+  z-index:25;
+}
+
+.menu-toggle{
+  display:none;
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  background:var(--surface-soft);
+  color:var(--green-dark);
+  place-items:center;
+}
+
+.breadcrumb{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:.88rem;
+  color:var(--muted);
+}
+
+.breadcrumb strong{color:var(--green-dark)}
+.spacer{flex:1}
+
+main{
+  width:100%;
+  max-width:1160px;
+  margin:0 auto;
+  padding:24px 24px 48px;
+  flex:1;
+}
+
+/* Buttons */
+.btn{
+  border-radius:var(--radius-sm);
+  padding:10px 16px;
+  font-weight:600;
+  font-size:.9rem;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  background:var(--green-primary);
+  color:#fff;
+  transition:transform .12s ease,background .18s ease,box-shadow .18s ease;
+}
+
+.btn:hover:not(:disabled){
+  background:var(--green-dark);
+  box-shadow:0 6px 16px rgba(18,63,39,.18);
+}
+
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn.sm{padding:7px 12px;font-size:.83rem;border-radius:8px}
+.btn.xs{padding:5px 9px;font-size:.8rem;border-radius:7px}
+.btn.full{width:100%}
+.btn.secondary{background:var(--surface-soft);color:var(--green-dark);border:1px solid var(--border)}
+.btn.secondary:hover:not(:disabled){background:var(--green-light);box-shadow:none}
+.btn.gold{background:var(--gold);color:var(--gold-dark);font-weight:700}
+.btn.gold:hover:not(:disabled){background:#e6b332}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.danger:hover:not(:disabled){background:#a61e1e}
+.btn:disabled{opacity:.48;cursor:not-allowed;box-shadow:none}
+
+/* Category Chips */
+.chip-bar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:18px;
+}
+
+.chip{
+  padding:7px 14px;
+  border-radius:999px;
+  font-size:.84rem;
+  font-weight:600;
+  background:var(--surface);
+  color:var(--muted);
+  border:1px solid var(--border);
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:all .16s ease;
+}
+
+.chip:hover{
+  background:var(--surface-soft);
+  color:var(--green-dark);
+}
+
+.chip.active{
+  background:var(--green-primary);
+  color:#fff;
+  border-color:var(--green-primary);
+  box-shadow:0 4px 10px rgba(31,107,67,.2);
+}
+
+/* Hero & Cards */
+.hero{
+  background:linear-gradient(125deg,var(--green-dark) 0%,var(--green-primary) 62%,var(--green-mid) 100%);
+  color:#fff;
+  border-radius:var(--radius-lg);
+  padding:clamp(26px,4vw,44px);
+  display:grid;
+  grid-template-columns:1.55fr 1fr;
+  gap:28px;
+  align-items:center;
+  box-shadow:var(--shadow-md);
+  position:relative;
+  overflow:hidden;
+}
+
+.hero::after{
+  content:"";
+  position:absolute;
+  right:-60px;
+  bottom:-60px;
+  width:240px;
+  height:240px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%);
+  pointer-events:none;
+}
+
+.eyebrow{
+  display:inline-block;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  font-size:.73rem;
+  font-weight:700;
+  color:#b6f0c6;
+  background:rgba(255,255,255,.12);
+  padding:4px 10px;
+  border-radius:999px;
+  margin-bottom:12px;
+}
+
+.hero h1{
+  font-size:clamp(1.75rem,3.4vw,2.65rem);
+  line-height:1.12;
+  margin:0 0 12px;
+  letter-spacing:-.02em;
+}
+
+.hero p{
+  color:#e4f3e8;
+  margin:0 0 22px;
+  font-size:1rem;
+  max-width:52ch;
+}
+
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px}
+
+.hero-visual{
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:var(--radius-md);
+  padding:30px;
+}
+
+.section-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+  margin:24px 0 18px;
+}
+
+.section-head:first-child{margin-top:0}
+
+.section-head h2{
+  margin:0;
+  font-size:1.38rem;
+  color:var(--green-dark);
+  letter-spacing:-.015em;
+}
+
+.section-head p{margin:3px 0 0;font-size:.91rem}
+
+.search-input{
+  min-width:250px;
+  padding:9px 14px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  background:var(--surface);
+  font-size:.9rem;
+}
+
+.search-input:focus{outline:2px solid var(--green-primary);border-color:transparent}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:18px;
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:22px;
+  box-shadow:var(--shadow-sm);
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+
+.card.hoverable:hover{
+  transform:translateY(-3px);
+  box-shadow:var(--shadow-md);
+}
+
+.card h3{margin:0 0 8px;color:var(--green-dark);font-size:1.06rem}
+
+.iconbox{
+  height:44px;
+  width:44px;
+  border-radius:12px;
+  background:var(--green-light);
+  color:var(--green-primary);
+  display:grid;
+  place-items:center;
+  margin-bottom:14px;
+}
+
+.stat-value{
+  font-size:1.9rem;
+  font-weight:800;
+  color:var(--green-primary);
+  margin:4px 0 0;
+}
+
+/* Forms & Diagnostic */
+.field{margin-bottom:14px}
+.field label{
+  display:block;
+  font-weight:600;
+  font-size:.86rem;
+  color:var(--green-dark);
+  margin-bottom:6px;
+}
+
+.field input,.field select,.field textarea{
+  width:100%;
+  padding:10px 13px;
+  border:1px solid #c3d5c7;
+  border-radius:var(--radius-sm);
+  background:#fff;
+  font-size:.92rem;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;
+  border-color:var(--green-primary);
+  box-shadow:0 0 0 3px rgba(31,107,67,.14);
+}
+
+.diagnostic-layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  align-items:start;
+}
+
+.dropzone{
+  border:2px dashed #9ec2a6;
+  border-radius:var(--radius-md);
+  padding:22px;
+  text-align:center;
+  background:#f8fcf9;
+  cursor:pointer;
+  transition:border-color .18s ease,background .18s ease,transform .18s ease;
+}
+
+.dropzone:hover,.dropzone.drag-over{
+  border-color:var(--green-primary);
+  background:var(--green-light);
+  transform:translateY(-2px);
+}
+
+.dropzone p{margin:6px 0 0}
+
+.preview-container{margin-top:12px}
+.preview{
+  width:100%;
+  max-height:220px;
+  object-fit:cover;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  margin-bottom:10px;
+}
+
+.diag-block{
+  background:var(--surface-soft);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:14px 16px;
+  margin-bottom:12px;
+}
+
+.diag-block h4{
+  margin:0 0 6px;
+  font-size:.86rem;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:var(--green-primary);
+}
+
+.diag-loader{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:42px 16px;
+  text-align:center;
+  gap:14px;
+}
+
+.diag-loader-icon{
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:var(--green-light);
+  color:var(--green-primary);
+  display:grid;
+  place-items:center;
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--mint);
+  color:var(--green-dark);
+  border-radius:999px;
+  padding:2px 8px;
+  font-size:.75rem;
+  font-weight:700;
+  line-height:1.3;
+}
+
+/* Products & Cart */
+.product-card{display:flex;flex-direction:column;justify-content:space-between}
+
+.product-img-box{
+  height:172px;
+  background:var(--green-light);
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:14px;
+  display:grid;
+  place-items:center;
+  color:var(--green-primary);
+  position:relative;
+}
+
+.product-img-box img{width:100%;height:100%;object-fit:cover}
+
+.cat-tag{
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:rgba(18,63,39,.86);
+  color:#fff;
+  font-size:.7rem;
+  font-weight:700;
+  padding:3px 9px;
+  border-radius:999px;
+  backdrop-filter:blur(4px);
+}
+
+.stock-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-top:10px;
+  padding:3px 9px;
+  border-radius:999px;
+  font-size:.78rem;
+  font-weight:700;
+}
+
+.stock-badge.ok{background:var(--green-light);color:var(--green-primary)}
+.stock-badge.low{background:var(--amber-bg);color:var(--amber)}
+.stock-badge.out{background:var(--danger-bg);color:var(--danger)}
+
+.product-foot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:16px;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+}
+
+.price{font-size:1.15rem;font-weight:800;color:var(--green-primary)}
+
+.qty-stepper{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:var(--surface-soft);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:3px 6px;
+}
+
+.qty-stepper button{
+  width:24px;
+  height:24px;
+  border-radius:6px;
+  display:grid;
+  place-items:center;
+  font-weight:700;
+  color:var(--green-dark);
+}
+
+.qty-stepper button:hover:not(:disabled){background:var(--mint)}
+.qty-stepper button:disabled{opacity:.35;cursor:not-allowed}
+
+.cart-total-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px solid var(--border);
+}
+
+.empty-state{
+  text-align:center;
+  padding:36px 16px;
+}
+
+.empty-state .iconbox{margin:0 auto 12px;width:52px;height:52px}
+
+/* Botanical Guide & Presets */
+.npk-badges{
+  display:flex;
+  gap:6px;
+  margin:10px 0;
+  flex-wrap:wrap;
+}
+
+.npk-pill{
+  font-size:.74rem;
+  font-weight:700;
+  padding:3px 8px;
+  border-radius:6px;
+  background:var(--surface-soft);
+  color:var(--green-dark);
+  border:1px solid var(--border);
+}
+
+.preset-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:12px;
+  margin-top:12px;
+}
+
+.preset-item{
+  border:1px solid var(--border);
+  background:var(--surface-soft);
+  border-radius:var(--radius-sm);
+  padding:12px 14px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.preset-item strong{color:var(--green-dark);font-size:.92rem}
+.preset-item small{color:var(--muted);font-size:.8rem;display:block}
+
+/* Tables */
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.91rem}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border)}
+th{
+  background:var(--green-light);
+  color:var(--green-dark);
+  font-weight:700;
+  font-size:.82rem;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+tbody tr:hover{background:#f9fcf9}
+
+/* Mobile Bottom Nav */
+.mobile-bottom-nav{
+  display:none;
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(10px);
+  border-top:1px solid var(--border);
+  z-index:30;
+  padding:6px 8px;
+  justify-content:space-around;
+}
+
+.mobile-bottom-nav button{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  font-size:.72rem;
+  font-weight:600;
+  color:var(--muted);
+  padding:6px 10px;
+  border-radius:10px;
+  position:relative;
+}
+
+.mobile-bottom-nav button.active{
+  color:var(--green-primary);
+  background:var(--green-light);
+}
+
+/* Toast & Footer */
+.toast{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--green-dark);
+  color:#fff;
+  padding:11px 22px;
+  border-radius:999px;
+  font-size:.9rem;
+  font-weight:600;
+  z-index:100;
+  box-shadow:var(--shadow-lg);
+  max-width:92vw;
+  text-align:center;
+  animation:fadeSlideIn .2s ease-out;
+}
+
+footer{
+  text-align:center;
+  padding:18px 20px 28px;
+  color:var(--muted);
+  font-size:.84rem;
+}
+
+@media(max-width:900px){
+  .app-shell{grid-template-columns:1fr}
+  .sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    transform:translateX(-100%);
+    box-shadow:var(--shadow-lg);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .menu-toggle{display:grid}
+  .mobile-bottom-nav{display:flex}
+  main{padding:18px 16px 86px}
+  footer{padding-bottom:84px}
+  .toast{bottom:78px}
+}
+
+@media(max-width:760px){
+  .hero,.diagnostic-layout{grid-template-columns:1fr}
+  .hero-visual{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
+</style>
+</head>
+<body>
+
+<section id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="login-brand">
+      <div class="brandmark lg leaf-float"><i data-lucide="sprout"></i></div>
+      <div class="brand">PlantIA<small>Inteligencia para cuidar tus plantas</small></div>
+    </div>
+
+    <h2 id="loginTitle" class="login-title">¡Bienvenido!</h2>
+    <p id="loginDescription" class="login-desc">Ingresa tus datos para acceder a la plataforma.</p>
+
+    <form id="authForm" onsubmit="event.preventDefault();login()">
+      <div id="registerNameGroup" class="field hidden">
+        <label for="registerName">Nombre completo</label>
+        <input id="registerName" autocomplete="name" placeholder="Tu nombre completo">
+      </div>
+
+      <div class="field">
+        <label for="username">Usuario</label>
+        <input id="username" autocomplete="username" placeholder="Ingresa tu usuario">
+      </div>
+
+      <div class="field">
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña">
+      </div>
+
+      <div id="loginError" class="login-error" role="alert"></div>
+
+      <button type="submit" id="loginButton" class="btn full">Ingresar a PlantIA</button>
+    </form>
+
+    <button type="button" id="registerButton" class="btn secondary full" style="margin-top:10px" onclick="toggleRegister()">Crear una cuenta</button>
+    <button type="button" id="backLoginButton" class="btn secondary full hidden" style="margin-top:10px" onclick="toggleRegister()">Volver al inicio de sesión</button>
+  </div>
+</section>
+
+<div id="appScreen" class="app-shell hidden">
+  <div id="sidebarOverlay" class="sidebar-overlay hidden" onclick="toggleSidebar(false)"></div>
+
+  <aside id="sidebar" class="sidebar" aria-label="Menú lateral">
+    <div class="sidebar-head">
+      <div class="brandmark"><i data-lucide="sprout"></i></div>
+      <div class="brand">PlantIA<small>Cuidado inteligente</small></div>
+    </div>
+
+    <div class="ai-status">
+      <span class="status-dot"></span>
+      <span>Asistente botánico activo</span>
+    </div>
+
+    <nav id="nav" class="nav-scroll" aria-label="Navegación principal"></nav>
+
+    <div class="sidebar-foot">
+      <div class="user-card">
+        <div id="userAvatar" class="avatar">U</div>
+        <div class="user-meta">
+          <strong id="currentUser">Usuario</strong>
+          <span id="currentRoleBadge" class="role-badge">cliente</span>
+        </div>
+      </div>
+      <button class="btn secondary sm full" onclick="logout()"><i data-lucide="log-out"></i>Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <header class="topbar">
+      <button class="menu-toggle" aria-label="Abrir menú" onclick="toggleSidebar(true)">
+        <i data-lucide="menu"></i>
+      </button>
+      <div class="breadcrumb">
+        <span>PlantIA</span>
+        <span>/</span>
+        <strong id="pageCrumb">Inicio</strong>
+      </div>
+      <div class="spacer"></div>
+      <button id="quickActionBtn" class="btn sm" onclick="go('diagnostico')">
+        <i data-lucide="scan-line"></i><span>Diagnosticar</span>
+      </button>
+    </header>
+
+    <main id="content"></main>
+
+    <footer>PlantIA &copy; 2026 · Cultivamos soluciones, hacemos crecer posibilidades.</footer>
+  </div>
+
+  <nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="Acceso rápido móvil"></nav>
+</div>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script>
+'use strict';
+
+const API_BASE = '';
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+const CATEGORIES = [
+  { id: 'todos', label: 'Todos', icon: 'layout-grid' },
+  { id: 'abonos', label: 'Abonos y fertilizantes', icon: 'flask-conical' },
+  { id: 'sustratos', label: 'Sustratos y tierras', icon: 'layers' },
+  { id: 'plagas', label: 'Control de plagas', icon: 'shield-check' },
+  { id: 'herramientas', label: 'Riego y herramientas', icon: 'droplets' },
+  { id: 'macetas', label: 'Macetas y accesorios', icon: 'flower-2' }
+];
+
+
+const BOTANICAL_PRESETS = [
+
+  // ==========================================
+  // 1. ABONOS Y FERTILIZANTES
+  // ==========================================
+
+  {
+    name: 'Humus de Lombriz Orgánico 2 kg',
+    category: 'abonos',
+    price: 18500,
+    stock: 25,
+    description: '[Abonos y fertilizantes] Mejora la estructura del suelo, aporta microorganismos benéficos y libera nutrientes de forma gradual.'
+  },
+  {
+    name: 'Fertilizante Triple 15 NPK 1 kg',
+    category: 'abonos',
+    price: 16000,
+    stock: 30,
+    description: '[Abonos y fertilizantes] Nutrición balanceada de nitrógeno, fósforo y potasio para favorecer el crecimiento general.'
+  },
+  {
+    name: 'Abono Líquido para Floración 500 ml',
+    category: 'abonos',
+    price: 22000,
+    stock: 18,
+    description: '[Abonos y fertilizantes] Fórmula con fósforo y potasio para acompañar el desarrollo de flores y brotes.'
+  },
+  {
+    name: 'Fertilizante de Nitrógeno 1 kg',
+    category: 'abonos',
+    price: 25000,
+    stock: 20,
+    description: '[Abonos y fertilizantes] Fuente de nitrógeno para favorecer el desarrollo de hojas y tallos.'
+  },
+  {
+    name: 'Fertilizante de Fósforo 500 g',
+    category: 'abonos',
+    price: 19000,
+    stock: 16,
+    description: '[Abonos y fertilizantes] Aporta fósforo para acompañar el desarrollo de raíces y procesos de floración.'
+  },
+  {
+    name: 'Fertilizante de Potasio 1 kg',
+    category: 'abonos',
+    price: 23000,
+    stock: 17,
+    description: '[Abonos y fertilizantes] Aporta potasio para apoyar la resistencia y el desarrollo general de las plantas.'
+  },
+  {
+    name: 'Compost Orgánico Natural 5 kg',
+    category: 'abonos',
+    price: 21000,
+    stock: 22,
+    description: '[Abonos y fertilizantes] Materia orgánica compostada que mejora la calidad y fertilidad del suelo.'
+  },
+  {
+    name: 'Abono Orgánico para Orquídeas 500 ml',
+    category: 'abonos',
+    price: 18000,
+    stock: 14,
+    description: '[Abonos y fertilizantes] Nutrición líquida formulada para acompañar el cuidado de orquídeas.'
+  },
+
+  // ==========================================
+  // 2. SUSTRATOS Y TIERRAS
+  // ==========================================
+
+  {
+    name: 'Sustrato Universal Premium 5 L',
+    category: 'sustratos',
+    price: 20000,
+    stock: 25,
+    description: '[Sustratos y tierras] Mezcla de turba y perlita para favorecer la aireación y retención equilibrada de humedad.'
+  },
+  {
+    name: 'Perlita Agrícola 2 L',
+    category: 'sustratos',
+    price: 14000,
+    stock: 20,
+    description: '[Sustratos y tierras] Material ligero que mejora la aireación y el drenaje del sustrato.'
+  },
+  {
+    name: 'Fibra de Coco Natural 5 L',
+    category: 'sustratos',
+    price: 17000,
+    stock: 18,
+    description: '[Sustratos y tierras] Fibra natural que ayuda a conservar humedad y mejorar la estructura del suelo.'
+  },
+  {
+    name: 'Vermiculita Expandida 2 L',
+    category: 'sustratos',
+    price: 16000,
+    stock: 15,
+    description: '[Sustratos y tierras] Mineral ligero que favorece la retención de agua y nutrientes.'
+  },
+  {
+    name: 'Tierra Negra Abonada 5 kg',
+    category: 'sustratos',
+    price: 15000,
+    stock: 30,
+    description: '[Sustratos y tierras] Tierra preparada para mejorar las condiciones de cultivo en macetas y jardines.'
+  },
+  {
+    name: 'Corteza de Pino para Orquídeas 3 L',
+    category: 'sustratos',
+    price: 19000,
+    stock: 15,
+    description: '[Sustratos y tierras] Corteza seleccionada que favorece la circulación de aire alrededor de las raíces.'
+  },
+  {
+    name: 'Piedra Pómez para Plantas 2 L',
+    category: 'sustratos',
+    price: 18000,
+    stock: 12,
+    description: '[Sustratos y tierras] Material mineral poroso que mejora el drenaje y evita la compactación.'
+  },
+  {
+    name: 'Carbón Vegetal para Sustratos 1 L',
+    category: 'sustratos',
+    price: 12000,
+    stock: 16,
+    description: '[Sustratos y tierras] Material utilizado en mezclas de cultivo para mejorar la estructura del sustrato.'
+  },
+
+  // ==========================================
+  // 3. CONTROL DE PLAGAS
+  // ==========================================
+
+  {
+    name: 'Aceite de Neem Natural 250 ml',
+    category: 'plagas',
+    price: 22000,
+    stock: 20,
+    description: '[Control de plagas] Producto de origen vegetal utilizado en programas de manejo de plagas en plantas.'
+  },
+  {
+    name: 'Jabón Potásico Ecológico 500 ml',
+    category: 'plagas',
+    price: 22000,
+    stock: 11,
+    description: '[Control de plagas] Producto de limpieza vegetal para el manejo de pulgones, cochinillas y otros insectos de cuerpo blando.'
+  },
+  {
+    name: 'Trampas Adhesivas Amarillas x 10',
+    category: 'plagas',
+    price: 12000,
+    stock: 30,
+    description: '[Control de plagas] Láminas adhesivas para monitorear insectos voladores como mosca blanca y mosquitos.'
+  },
+  {
+    name: 'Tierra de Diatomeas 500 g',
+    category: 'plagas',
+    price: 18000,
+    stock: 15,
+    description: '[Control de plagas] Polvo mineral utilizado como apoyo en el manejo de determinados insectos.'
+  },
+  {
+    name: 'Fungicida Botánico 250 ml',
+    category: 'plagas',
+    price: 26000,
+    stock: 12,
+    description: '[Control de plagas] Producto para el manejo preventivo de problemas fúngicos en plantas, siguiendo las indicaciones de etiqueta.'
+  },
+  {
+    name: 'Insecticida Biológico 500 ml',
+    category: 'plagas',
+    price: 28000,
+    stock: 10,
+    description: '[Control de plagas] Solución biológica para el manejo de insectos que afectan cultivos y plantas ornamentales.'
+  },
+
+  // ==========================================
+  // 4. RIEGO Y HERRAMIENTAS
+  // ==========================================
+
+  {
+    name: 'Tijera de Poda Ergonómica',
+    category: 'herramientas',
+    price: 32000,
+    stock: 15,
+    description: '[Riego y herramientas] Tijera de acero inoxidable para realizar cortes limpios en tallos y ramas.'
+  },
+  {
+    name: 'Atomizador de Niebla Fina 500 ml',
+    category: 'herramientas',
+    price: 12000,
+    stock: 25,
+    description: '[Riego y herramientas] Pulverizador manual para aplicar agua y soluciones de cuidado de manera uniforme.'
+  },
+  {
+    name: 'Regadera de Jardín 2 L',
+    category: 'herramientas',
+    price: 22000,
+    stock: 14,
+    description: '[Riego y herramientas] Regadera práctica para controlar el suministro de agua en macetas y jardines.'
+  },
+  {
+    name: 'Medidor Digital de Humedad del Suelo',
+    category: 'herramientas',
+    price: 38000,
+    stock: 10,
+    description: '[Riego y herramientas] Dispositivo para consultar la humedad del sustrato y orientar las decisiones de riego.'
+  },
+  {
+    name: 'Guantes de Jardinería Reforzados',
+    category: 'herramientas',
+    price: 18000,
+    stock: 20,
+    description: '[Riego y herramientas] Protección para las manos durante actividades de siembra, poda y mantenimiento.'
+  },
+  {
+    name: 'Kit de Herramientas de Jardinería x 3',
+    category: 'herramientas',
+    price: 35000,
+    stock: 12,
+    description: '[Riego y herramientas] Incluye pala, rastrillo y trasplantador para tareas básicas de jardinería.'
+  },
+
+  // ==========================================
+  // 5. MACETAS Y ACCESORIOS
+  // ==========================================
+
+  {
+    name: 'Maceta Autorriego Minimalista 20 cm',
+    category: 'macetas',
+    price: 24000,
+    stock: 9,
+    description: '[Macetas y accesorios] Maceta con depósito interno para mantener una reserva de agua disponible para las raíces.'
+  },
+  {
+    name: 'Maceta de Cerámica Decorativa 15 cm',
+    category: 'macetas',
+    price: 32000,
+    stock: 12,
+    description: '[Macetas y accesorios] Maceta decorativa para plantas de interior y espacios pequeños.'
+  },
+  {
+    name: 'Maceta Plástica con Drenaje 20 cm',
+    category: 'macetas',
+    price: 14000,
+    stock: 25,
+    description: '[Macetas y accesorios] Recipiente liviano con orificios inferiores para facilitar el drenaje.'
+  },
+  {
+    name: 'Plato Recolector para Maceta x 3',
+    category: 'macetas',
+    price: 12000,
+    stock: 20,
+    description: '[Macetas y accesorios] Platos para recoger el exceso de agua y proteger las superficies.'
+  },
+  {
+    name: 'Tutor de Fibra de Coco 60 cm',
+    category: 'macetas',
+    price: 18000,
+    stock: 16,
+    description: '[Macetas y accesorios] Soporte para plantas trepadoras que necesitan orientación y apoyo durante su crecimiento.'
+  },
+  {
+    name: 'Soporte Metálico para Macetas',
+    category: 'macetas',
+    price: 29000,
+    stock: 10,
+    description: '[Macetas y accesorios] Base decorativa para elevar y organizar macetas en espacios interiores.'
+  }
+
+];
+
+
+let token = localStorage.getItem('plantiaToken') || '';
+let currentUser = null;
+let role = 'cliente';
+let active = 'inicio';
+let cart = JSON.parse(localStorage.getItem('plantiaCart') || '[]');
+let inventory = [];
+let salesHistory = [];
+let diagnoses = [];
+let previewData = '';
+let productSearchQuery = '';
+let selectedCategory = 'todos';
+let registerMode = false;
+let isLoadingData = false;
+
+const $ = id => document.getElementById(id);
+
+const money = n => new Intl.NumberFormat('es-CO', {
+  style: 'currency',
+  currency: 'COP',
+  maximumFractionDigits: 0
+}).format(Number(n) || 0);
+
+const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+}[c]));
+
+const safeImageUrl = url => {
+  const clean = String(url || '').trim();
+  return /^https?:\/\//i.test(clean) ? clean : '';
+};
+
+function detectProductCategory(p) {
+  if (p.category) return p.category;
+  const text = `${p.name || ''} ${p.description || ''}`.toLowerCase();
+  if (/abono|fertilizante|humus|compost|npk|micorriza|nutriente|quelato|urea/.test(text)) return 'abonos';
+  if (/sustrato|tierra|turba|perlita|vermiculita|fibra de coco|corteza|fibra/.test(text)) return 'sustratos';
+  if (/plaga|neem|potásico|potasico|fungicida|insecticida|cochinilla|pulgón|pulgon/.test(text)) return 'plagas';
+  if (/riego|atomizador|pulverizador|tijera|poda|medidor|herramienta|regadera/.test(text)) return 'herramientas';
+  if (/maceta|matera|plato|tutor|soporte|autorriego/.test(text)) return 'macetas';
+  return 'abonos';
+}
+
+function getCategoryLabel(catId) {
+  const found = CATEGORIES.find(c => c.id === catId);
+  return found ? found.label : 'Insumo botánico';
+}
+
+function cleanDescription(desc) {
+  return String(desc || '').replace(/^\[[^\]]+\]\s*/, '');
+}
+
+function toast(message) {
+  const el = $('toast');
+  el.textContent = message;
+  el.classList.remove('hidden');
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.add('hidden'), 3200);
+}
+
+function toggleSidebar(open) {
+  $('sidebar').classList.toggle('open', open);
+  $('sidebarOverlay').classList.toggle('hidden', !open);
+}
+
+function setLoginError(msg) {
+  const el = $('loginError');
+  el.textContent = msg || '';
+  el.classList.toggle('show', Boolean(msg));
+}
+
+async function apiFetch(path, options = {}) {
+  const headers = new Headers(options.headers || {});
+  if (token) headers.set('Authorization', 'Bearer ' + token);
+  if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+  const response = await fetch(API_BASE + path, { ...options, headers });
+  let payload = {};
+  try { payload = await response.json(); } catch {}
+
+  if (response.status === 401 && token) {
+    logout();
+    toast('Tu sesión expiró. Inicia sesión nuevamente.');
+    throw new Error('Sesión expirada');
+  }
+
+  if (!response.ok || payload.success === false) {
+    throw new Error(payload.message || payload.error || `Error HTTP ${response.status}`);
+  }
+  return payload;
+}
+
+function toggleRegister() {
+  registerMode = !registerMode;
+  $('registerNameGroup').classList.toggle('hidden', !registerMode);
+  $('loginTitle').textContent = registerMode ? 'Crear cuenta' : '¡Bienvenido!';
+  $('loginDescription').textContent = registerMode
+    ? 'Regístrate para comenzar a cuidar tus plantas.'
+    : 'Ingresa tus datos para acceder a la plataforma.';
+  $('loginButton').textContent = registerMode ? 'Registrarme' : 'Ingresar a PlantIA';
+  $('registerButton').classList.toggle('hidden', registerMode);
+  $('backLoginButton').classList.toggle('hidden', !registerMode);
+  setLoginError('');
+}
+
+async function login() {
+  const username = $('username').value.trim();
+  const password = $('password').value;
+  setLoginError('');
+
+  if (!username || !password) {
+    setLoginError('Ingresa tu usuario y contraseña.');
+    return;
+  }
+
+  const button = $('loginButton');
+  button.disabled = true;
+  try {
+    if (registerMode) {
+      const name = $('registerName').value.trim();
+      if (!name) throw new Error('Ingresa tu nombre completo.');
+      await apiFetch('/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ username, name, password })
+      });
+      registerMode = false;
+      toggleRegister();
+      $('username').value = username;
+      $('password').value = password;
+      toast('Cuenta creada. Ahora inicia sesión.');
+      return;
+    }
+
+    const result = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password })
+    });
+    token = result.data.token;
+    currentUser = result.data.user;
+    localStorage.setItem('plantiaToken', token);
+    await openApp();
+  } catch (err) {
+    setLoginError(err.message);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function restoreSession() {
+  if (!token) return;
+  try {
+    const result = await apiFetch('/api/auth/me');
+    currentUser = result.data;
+    await openApp();
+  } catch {
+    token = '';
+    currentUser = null;
+    localStorage.removeItem('plantiaToken');
+  }
+}
+
+async function openApp() {
+  role = currentUser.role || 'cliente';
+  const displayName = currentUser.name || currentUser.username || 'Usuario';
+  $('loginScreen').classList.add('hidden');
+  $('appScreen').classList.remove('hidden');
+  $('currentUser').textContent = displayName;
+  $('currentRoleBadge').textContent = role;
+  $('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+
+  isLoadingData = true;
+  const startView = role === 'admin' ? 'admin' : role === 'ventas' ? 'ventas' : 'inicio';
+  go(startView);
+
+  await refreshData();
+  isLoadingData = false;
+  go(active);
+}
+
+function logout() {
+  token = '';
+  currentUser = null;
+  localStorage.removeItem('plantiaToken');
+  toggleSidebar(false);
+  $('appScreen').classList.add('hidden');
+  $('loginScreen').classList.remove('hidden');
+  $('password').value = '';
+  $('username').value = '';
+  setLoginError('');
+  role = 'cliente';
+}
+
+async function refreshData() {
+  const tasks = [loadProducts(), loadDiagnoses()];
+  if (role === 'admin' || role === 'ventas') tasks.push(loadSales());
+  await Promise.allSettled(tasks);
+}
+
+async function loadProducts() {
+  const r = await apiFetch('/api/productos');
+  inventory = r.data || [];
+  reconcileCartWithStock();
+}
+
+async function loadDiagnoses() {
+  const r = await apiFetch('/api/diagnosticos?limit=100');
+  diagnoses = r.data || [];
+}
+
+async function loadSales() {
+  const r = await apiFetch('/api/ventas?limit=100');
+  salesHistory = r.data || [];
+}
+
+function getMenuGroups() {
+  if (role === 'admin') {
+    return [
+      {
+        title: 'Administración',
+        items: [
+          ['admin', 'layout-dashboard', 'Panel general'],
+          ['inventario', 'boxes', 'Inventario e insumos'],
+          ['diagnosticos', 'clipboard-list', 'Diagnósticos']
+        ]
+      },
+      {
+        title: 'Comercio y Botánica',
+        items: [
+          ['tienda', 'store', 'Catálogo tienda'],
+          ['guia', 'book-open', 'Guía de abonos'],
+          ['ventas', 'receipt', 'Historial ventas']
+        ]
+      }
+    ];
+  }
+  if (role === 'ventas') {
+    return [
+      {
+        title: 'Punto de venta',
+        items: [
+          ['ventas', 'receipt', 'Caja / Ventas'],
+          ['tienda', 'store', 'Catálogo insumos'],
+          ['carrito', 'shopping-cart', 'Carrito / Cobro'],
+          ['guia', 'book-open', 'Guía de abonos']
+        ]
+      }
+    ];
+  }
+  return [
+    {
+      title: 'Principal',
+      items: [
+        ['inicio', 'home', 'Inicio'],
+        ['diagnostico', 'scan-line', 'Diagnosticar planta'],
+        ['misdiagnosticos', 'history', 'Mis diagnósticos'],
+        ['guia', 'book-open', 'Guía de abonos']
+      ]
+    },
+    {
+      title: 'Tienda botánica',
+      items: [
+        ['tienda', 'store', 'Catálogo e insumos'],
+        ['carrito', 'shopping-cart', 'Carrito']
+      ]
+    }
+  ];
+}
+
+function buildNav(bounceCart = false) {
+  const groups = getMenuGroups();
+  const count = cart.reduce((a, x) => a + x.qty, 0);
+
+  $('nav').innerHTML = groups.map(group => `
+    <div class="nav-group-label">${group.title}</div>
+    <div class="nav-list">
+      ${group.items.map(([id, icon, label]) => `
+        <button class="nav-item ${active === id ? 'active' : ''}" onclick="go('${id}')">
+          <i data-lucide="${icon}"></i>
+          <span class="nav-label">${label}</span>
+          ${id === 'carrito' && count ? `<span class="pill ${bounceCart ? 'badge-bounce' : ''}">${count}</span>` : ''}
+        </button>
+      `).join('')}
+    </div>
+  `).join('');
+
+  const flatItems = groups.flatMap(g => g.items).slice(0, 4);
+  $('mobileBottomNav').innerHTML = flatItems.map(([id, icon, label]) => `
+    <button class="${active === id ? 'active' : ''}" onclick="go('${id}')">
+      <i data-lucide="${icon}"></i>
+      <span>${label.split(' ')[0]}</span>
+    </button>
+  `).join('');
+
+  const currentItem = groups.flatMap(g => g.items).find(([id]) => id === active);
+  $('pageCrumb').textContent = currentItem ? currentItem[2] : 'Inicio';
+
+  const quickBtn = $('quickActionBtn');
+  if (role === 'admin') {
+    quickBtn.innerHTML = `<i data-lucide="plus"></i><span>Nuevo insumo</span>`;
+    quickBtn.onclick = () => go('inventario');
+  } else if (role === 'ventas') {
+    quickBtn.innerHTML = `<i data-lucide="shopping-cart"></i><span>Cobrar (${count})</span>`;
+    quickBtn.onclick = () => go('carrito');
+  } else {
+    quickBtn.innerHTML = `<i data-lucide="scan-line"></i><span>Diagnosticar</span>`;
+    quickBtn.onclick = () => go('diagnostico');
+  }
+
+  lucide.createIcons();
+}
+
+function go(v) {
+  active = v;
+  toggleSidebar(false);
+  buildNav();
+
+  const pages = {
+    inicio,
+    diagnostico,
+    tienda,
+    guia: botanicalGuidePage,
+    misdiagnosticos,
+    carrito: cartPage,
+    admin: adminPage,
+    ventas: salesPage,
+    inventario: inventoryPage,
+    diagnosticos: diagnosesPage
+  };
+
+  const container = $('content');
+  container.classList.remove('view-enter');
+  void container.offsetWidth;
+  container.innerHTML = (pages[v] || inicio)();
+  container.classList.add('view-enter');
+
+  if (v === 'diagnostico') bindUpload();
+  lucide.createIcons();
+}
+
+function inicio() {
+  return `
+    <section class="hero">
+      <div>
+        <span class="eyebrow">Tecnología e Inteligencia Artificial</span>
+        <h1>Cuida tus plantas con nutrición y diagnóstico experto</h1>
+        <p>Analiza síntomas con fotos, calcula la dosis ideal de abono y consigue sustratos, fertilizantes y control biológico en un solo lugar.</p>
+        <div class="hero-actions">
+          <button class="btn gold" onclick="go('diagnostico')"><i data-lucide="scan"></i>Analizar una planta</button>
+          <button class="btn secondary" onclick="go('guia')"><i data-lucide="book-open"></i>Guía de abonos</button>
+          <button class="btn secondary" onclick="go('tienda')"><i data-lucide="store"></i>Ver insumos</button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <i data-lucide="leaf" class="leaf-float" style="width:112px;height:112px;color:#d6f5df"></i>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div>
+        <h2>Todo para el bienestar de tu jardín</h2>
+        <p class="muted">Explora por categoría de cuidado e insumos disponibles.</p>
+      </div>
+    </div>
+
+    <div class="grid stagger">
+      <article class="card hoverable" style="cursor:pointer" onclick="selectedCategory='abonos';go('tienda')">
+        <div class="iconbox"><i data-lucide="flask-conical"></i></div>
+        <h3>Abonos y fertilizantes</h3>
+        <p class="muted">Humus de lombriz, fórmulas NPK balanceadas y bioestimulantes para raíces y floración.</p>
+      </article>
+      <article class="card hoverable" style="cursor:pointer" onclick="selectedCategory='sustratos';go('tienda')">
+        <div class="iconbox"><i data-lucide="layers"></i></div>
+        <h3>Sustratos y tierras</h3>
+        <p class="muted">Mezclas aireadas con turba, perlita, fibra de coco y corteza para evitar pudrición radicular.</p>
+      </article>
+      <article class="card hoverable" style="cursor:pointer" onclick="selectedCategory='plagas';go('tienda')">
+        <div class="iconbox"><i data-lucide="shield-check"></i></div>
+        <h3>Control de plagas</h3>
+        <p class="muted">Aceite de neem, jabón potásico y protectores orgánicos seguros para interior y exterior.</p>
+      </article>
+    </div>
+  `;
+}
+
+function getRecommendedProductsForSymptom(symptom) {
+  const map = {
+    amarillas: ['abonos', 'sustratos'],
+    crecimiento: ['abonos'],
+    plaga: ['plagas'],
+    manchas: ['plagas', 'sustratos'],
+    marchita: ['sustratos', 'herramientas'],
+    otro: ['abonos', 'sustratos']
+  };
+  const preferredCats = map[symptom] || ['abonos'];
+  const matches = inventory.filter(p => preferredCats.includes(detectProductCategory(p)));
+  return (matches.length ? matches : inventory).slice(0, 2);
+}
+
+function diagnostico() {
+  return `
+    <div class="section-head">
+      <div>
+        <h2>Diagnóstico de plantas</h2>
+        <p class="muted">Ingresa los datos del problema y adjunta una fotografía.</p>
+      </div>
+    </div>
+
+    <div class="diagnostic-layout">
+      <section class="card">
+        <h3>1. Detalles e imagen</h3>
+        <div class="field">
+          <label for="plantName">Nombre de la planta</label>
+          <input id="plantName" placeholder="Ej. Monstera, Pothos, Orquídea">
+        </div>
+        <div class="field">
+          <label for="symptom">Síntoma principal</label>
+          <select id="symptom">
+            <option value="manchas">Manchas marrones o negras en hojas</option>
+            <option value="amarillas">Hojas amarillentas o pálidas (posible falta de nutrientes)</option>
+            <option value="plaga">Presencia de insectos o telarañas</option>
+            <option value="marchita">Hojas caídas o marchitas</option>
+            <option value="crecimiento">Sin crecimiento / desarrollo lento</option>
+            <option value="otro">Otro síntoma</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="notes">Observaciones adicionales</label>
+          <textarea id="notes" rows="3" placeholder="Frecuencia de riego, último abonado, luz, cambios recientes..."></textarea>
+        </div>
+        <div id="dropzone" class="dropzone" onclick="$('plantPhoto').click()">
+          <i data-lucide="upload-cloud" style="width:36px;height:36px;color:var(--green-primary)"></i>
+          <p><strong>Haz clic o arrastra una foto aquí</strong></p>
+          <p class="muted" style="font-size:.83rem">JPG, PNG o WEBP · máximo 5 MB</p>
+          <input id="plantPhoto" type="file" accept="image/jpeg,image/png,image/webp" class="hidden">
+        </div>
+        <div id="previewWrap" class="preview-container hidden">
+          <img id="photoPreview" class="preview" alt="Vista previa de la planta">
+          <button type="button" class="btn danger sm" onclick="removePhoto()"><i data-lucide="trash-2"></i>Quitar foto</button>
+        </div>
+        <button id="diagnosisButton" class="btn full" style="margin-top:18px" onclick="runDiagnosis()">
+          <i data-lucide="sparkles"></i>Obtener diagnóstico
+        </button>
+      </section>
+
+      <section class="card">
+        <h3>2. Resultado de evaluación</h3>
+        <div id="diagnosisResult">
+          <div class="empty-state">
+            <div class="iconbox"><i data-lucide="sprout"></i></div>
+            <p class="muted" style="margin:0">Completa el formulario y presiona <strong>Obtener diagnóstico</strong> para generar la orientación y recomendaciones de abono o tratamiento.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function handleSelectedFile(file) {
+  if (!file) return;
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    toast('Formato no permitido. Usa JPG, PNG o WEBP.');
+    return;
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    toast('La imagen supera el tamaño máximo de 5 MB.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    previewData = e.target.result;
+    $('photoPreview').src = previewData;
+    $('previewWrap').classList.remove('hidden');
+  };
+  reader.readAsDataURL(file);
+}
+
+function bindUpload() {
+  const fileInput = $('plantPhoto');
+  const dropzone = $('dropzone');
+  if (!fileInput || !dropzone) return;
+
+  fileInput.addEventListener('change', () => handleSelectedFile(fileInput.files[0]));
+
+  ['dragenter', 'dragover'].forEach(evt => {
+    dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      dropzone.classList.add('drag-over');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(evt => {
+    dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+    });
+  });
+
+  dropzone.addEventListener('drop', e => {
+    const file = e.dataTransfer?.files?.[0];
+    if (file) handleSelectedFile(file);
+  });
+}
+
+function removePhoto() {
+  previewData = '';
+  const fileInput = $('plantPhoto');
+  if (fileInput) fileInput.value = '';
+  const previewWrap = $('previewWrap');
+  if (previewWrap) previewWrap.classList.add('hidden');
+}
+
+async function runDiagnosis() {
+  const plant_name = $('plantName').value.trim();
+  const symptom = $('symptom').value;
+  const notes = $('notes').value.trim();
+  const btn = $('diagnosisButton');
+
+  if (!plant_name) {
+    toast('Escribe el nombre de la planta.');
+    return;
+  }
+
+  btn.disabled = true;
+  $('diagnosisResult').innerHTML = `
+    <div class="diag-loader view-enter">
+      <div class="diag-loader-icon pulse-ai"><i data-lucide="sparkles"></i></div>
+      <div>
+        <strong>Analizando ${escapeHtml(plant_name)}...</strong>
+        <p class="muted" style="margin:4px 0 0;font-size:.88rem">Evaluando síntomas e imagen con inteligencia artificial.</p>
+      </div>
+    </div>
+  `;
+  lucide.createIcons();
+
+  try {
+    const res = await apiFetch('/api/diagnosticos', {
+      method: 'POST',
+      body: JSON.stringify({ plant_name, symptom, notes, image: previewData || null })
+    });
+    const d = res.data || res;
+    const recs = getRecommendedProductsForSymptom(symptom);
+
+    $('diagnosisResult').innerHTML = `
+      <div class="view-enter">
+        <div class="diag-block">
+          <h4>Planta evaluada</h4>
+          <p style="margin:0;font-weight:700">${escapeHtml(d.plant_name || plant_name)}</p>
+        </div>
+        <div class="diag-block">
+          <h4>Diagnóstico</h4>
+          <p style="margin:0">${escapeHtml(d.diagnosis || d.result || 'Evaluación registrada.')}</p>
+        </div>
+        ${(d.recommendation || d.care_tips) ? `
+          <div class="diag-block">
+            <h4>Cuidados recomendados</h4>
+            <p style="margin:0">${escapeHtml(d.recommendation || d.care_tips)}</p>
+          </div>
+        ` : ''}
+        ${recs.length ? `
+          <div class="diag-block" style="margin-bottom:0;background:#fff">
+            <h4>Insumos sugeridos para recuperación</h4>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+              ${recs.map(p => `
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:8px">
+                  <div>
+                    <strong style="font-size:.88rem;display:block">${escapeHtml(p.name)}</strong>
+                    <span class="muted" style="font-size:.8rem">${money(p.price)}</span>
+                  </div>
+                  <button type="button" class="btn xs" onclick="addToCart(${p.id})"><i data-lucide="plus"></i>Agregar</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    await loadDiagnoses();
+    lucide.createIcons();
+    toast('Diagnóstico guardado.');
+  } catch (err) {
+    $('diagnosisResult').innerHTML = `<p style="color:var(--danger)">${escapeHtml(err.message)}</p>`;
+    toast(err.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function botanicalGuidePage() {
+  return `
+    <div class="section-head">
+      <div>
+        <h2>Guía de Abonos, Sustratos y Nutrición</h2>
+        <p class="muted">Aprende qué abono usar según la etapa de tu planta y calcula su dosis exacta.</p>
+      </div>
+      <button class="btn sm" onclick="selectedCategory='abonos';go('tienda')"><i data-lucide="shopping-bag"></i>Comprar abonos</button>
+    </div>
+
+    <div class="grid stagger">
+      <article class="card hoverable">
+        <div class="iconbox"><i data-lucide="sprout"></i></div>
+        <h3>Humus de Lombriz</h3>
+        <div class="npk-badges">
+          <span class="npk-pill">100% Orgánico</span>
+          <span class="npk-pill">Liberación lenta</span>
+        </div>
+        <p class="muted" style="font-size:.9rem">Mejora la retención de humedad, activa la vida microbiana de la tierra y no quema las raíces. Ideal cada 30–45 días en todo tipo de plantas.</p>
+      </article>
+
+      <article class="card hoverable">
+        <div class="iconbox"><i data-lucide="flask-conical"></i></div>
+        <h3>Fertilizante NPK Balanceado</h3>
+        <div class="npk-badges">
+          <span class="npk-pill">N · Follaje verde</span>
+          <span class="npk-pill">P · Raíces y flores</span>
+          <span class="npk-pill">K · Resistencia</span>
+        </div>
+        <p class="muted" style="font-size:.9rem">El <strong>Nitrógeno (N)</strong> impulsa hojas verdes; el <strong>Fósforo (P)</strong> fortalece raíces y floración; el <strong>Potasio (K)</strong> protege contra plagas y sequía.</p>
+      </article>
+
+      <article class="card hoverable">
+        <div class="iconbox"><i data-lucide="layers"></i></div>
+        <h3>Mezcla de Sustrato Ideal</h3>
+        <div class="npk-badges">
+          <span class="npk-pill">60% Tierra / Turba</span>
+          <span class="npk-pill">25% Perlita / Corteza</span>
+          <span class="npk-pill">15% Humus</span>
+        </div>
+        <p class="muted" style="font-size:.9rem">Evita que la tierra se compacte. Si el agua tarda más de 10 segundos en drenar, tu planta necesita más perlita o fibra de coco.</p>
+      </article>
+    </div>
+
+    <div class="section-head">
+      <div>
+        <h2>Calculadora de Dosis de Abono</h2>
+        <p class="muted">Estima la cantidad recomendada según el tamaño de la maceta.</p>
+      </div>
+    </div>
+
+    <div class="diagnostic-layout">
+      <section class="card">
+        <h3>Datos de tu maceta</h3>
+        <div class="field">
+          <label for="calcPotSize">Diámetro de la maceta (cm)</label>
+          <select id="calcPotSize" onchange="calculateFertilizerDose()">
+            <option value="12">Pequeña (10 – 14 cm)</option>
+            <option value="20" selected>Mediana (15 – 22 cm)</option>
+            <option value="30">Grande (23 – 35 cm)</option>
+            <option value="45">Macetón / Jardín (más de 35 cm)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="calcType">Tipo de abono a aplicar</label>
+          <select id="calcType" onchange="calculateFertilizerDose()">
+            <option value="humus">Humus de lombriz sólido</option>
+            <option value="npk">Granulado NPK (Triple 15 / Osmocote)</option>
+            <option value="liquido">Abono líquido diluido en agua</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label for="calcSeason">Estado de la planta</label>
+          <select id="calcSeason" onchange="calculateFertilizerDose()">
+            <option value="crecimiento">Crecimiento activo / brotes nuevos</option>
+            <option value="floracion">En floración o fructificación</option>
+            <option value="recuperacion">Recién trasplantada o débil</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Dosis recomendada</h3>
+        <div id="doseResult"></div>
+      </section>
+    </div>
+  `;
+}
+
+function calculateFertilizerDose() {
+  const pot = Number($('calcPotSize')?.value || 20);
+  const type = $('calcType')?.value || 'humus';
+  const state = $('calcSeason')?.value || 'crecimiento';
+  const target = $('doseResult');
+  if (!target) return;
+
+  const factor = pot <= 14 ? 1 : pot <= 22 ? 2 : pot <= 35 ? 4 : 7;
+  const stateMult = state === 'recuperacion' ? 0.5 : 1;
+
+  let doseText = '';
+  let freqText = '';
+  let tipText = '';
+
+  if (type === 'humus') {
+    const spoons = Math.max(1, Math.round(2 * factor * stateMult));
+    doseText = `${spoons} cucharada${spoons > 1 ? 's' : ''} sopera${spoons > 1 ? 's' : ''} (aprox. ${spoons * 15} g)`;
+    freqText = 'Cada 30 días sobre la superficie del sustrato.';
+    tipText = 'Remueve suavemente los primeros 2 cm de tierra y riega después para activar los nutrientes.';
+  } else if (type === 'npk') {
+    const grams = Math.max(2, Math.round(3 * factor * stateMult));
+    doseText = `${grams} gramos (aprox. ${(grams / 5).toFixed(1)} cucharaditas)`;
+    freqText = state === 'recuperacion' ? 'Esperar 3 semanas tras el trasplante antes de aplicar.' : 'Cada 45 a 60 días.';
+    tipText = 'Esparce los gránulos lejos del tallo principal y riega abundantemente.';
+  } else {
+    const ml = Math.max(2, Math.round(2.5 * factor * stateMult));
+    const waterMl = Math.round(250 * factor);
+    doseText = `${ml} ml de abono líquido disueltos en ${waterMl} ml de agua`;
+    freqText = 'Cada 15 días en época de crecimiento.';
+    tipText = 'Nunca apliques abono líquido sobre sustrato completamente seco; humedece un poco antes.';
+  }
+
+  target.innerHTML = `
+    <div class="view-enter">
+      <div class="diag-block">
+        <h4>Cantidad sugerida</h4>
+        <p style="margin:0;font-weight:800;font-size:1.05rem;color:var(--green-dark)">${doseText}</p>
+      </div>
+      <div class="diag-block">
+        <h4>Frecuencia</h4>
+        <p style="margin:0">${freqText}</p>
+      </div>
+      <div class="diag-block" style="margin-bottom:0">
+        <h4>Consejo de aplicación</h4>
+        <p style="margin:0">${tipText}</p>
+      </div>
+    </div>
+  `;
+}
+
+function saveCart(bounce = false) {
+  localStorage.setItem('plantiaCart', JSON.stringify(cart));
+  buildNav(bounce);
+}
+
+function reconcileCartWithStock() {
+  if (!inventory.length) return;
+  let changed = false;
+  cart = cart.reduce((acc, item) => {
+    const product = inventory.find(p => Number(p.id) === Number(item.id));
+    if (!product) {
+      changed = true;
+      return acc;
+    }
+    const maxStock = Number(product.stock);
+    if (Number.isFinite(maxStock)) {
+      if (maxStock <= 0) {
+        changed = true;
+        return acc;
+      }
+      if (item.qty > maxStock) {
+        item.qty = maxStock;
+        changed = true;
+      }
+    }
+    item.price = Number(product.price) || item.price;
+    item.name = product.name || item.name;
+    acc.push(item);
+    return acc;
+  }, []);
+  if (changed) localStorage.setItem('plantiaCart', JSON.stringify(cart));
+}
+
+function getCartQty(productId) {
+  const item = cart.find(c => Number(c.id) === Number(productId));
+  return item ? Number(item.qty) || 0 : 0;
+}
+
+function getAvailableStock(product) {
+  const baseStock = Number(product.stock);
+  if (!Number.isFinite(baseStock)) return Infinity;
+  return Math.max(0, baseStock - getCartQty(product.id));
+}
+
+function addToCart(productId) {
+  const item = inventory.find(p => Number(p.id) === Number(productId));
+  if (!item) return;
+
+  const available = getAvailableStock(item);
+  if (available <= 0) {
+    toast(`No hay más stock disponible de ${item.name}.`);
+    return;
+  }
+
+  const existing = cart.find(c => Number(c.id) === Number(productId));
+  if (existing) existing.qty += 1;
+  else cart.push({ id: item.id, name: item.name, price: Number(item.price) || 0, qty: 1 });
+
+  saveCart(true);
+  if (active === 'tienda') renderProductsGrid();
+  toast(`${item.name} agregado al carrito.`);
+}
+
+function updateCartQty(productId, delta) {
+  const idx = cart.findIndex(c => Number(c.id) === Number(productId));
+  if (idx === -1) return;
+
+  const product = inventory.find(p => Number(p.id) === Number(productId));
+  const maxStock = product && Number.isFinite(Number(product.stock)) ? Number(product.stock) : Infinity;
+  const nextQty = cart[idx].qty + delta;
+
+  if (nextQty <= 0) {
+    cart.splice(idx, 1);
+  } else if (nextQty > maxStock) {
+    toast(`Stock máximo disponible: ${maxStock}`);
+    return;
+  } else {
+    cart[idx].qty = nextQty;
+  }
+
+  saveCart(delta > 0);
+  if (active === 'carrito') go('carrito');
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(c => Number(c.id) !== Number(productId));
+  saveCart();
+  if (active === 'carrito') go('carrito');
+}
+
+function setCategoryFilter(catId) {
+  selectedCategory = catId;
+  document.querySelectorAll('#categoryChips .chip').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.cat === catId);
+  });
+  renderProductsGrid();
+}
+
+function renderProductsGrid() {
+  const grid = $('productsGrid');
+  if (!grid) return;
+
+  if (isLoadingData && !inventory.length) {
+    grid.innerHTML = Array.from({ length: 4 }).map(() => `
+      <div class="card">
+        <div class="skeleton" style="height:172px;margin-bottom:14px"></div>
+        <div class="skeleton" style="height:20px;width:70%;margin-bottom:8px"></div>
+        <div class="skeleton" style="height:14px;width:95%"></div>
+      </div>
+    `).join('');
+    return;
+  }
+
+  const q = productSearchQuery.trim().toLowerCase();
+  const filtered = inventory.filter(p => {
+    const cat = detectProductCategory(p);
+    const matchesCat = selectedCategory === 'todos' || cat === selectedCategory;
+    const matchesQuery = !q ||
+      String(p.name || '').toLowerCase().includes(q) ||
+      String(p.description || '').toLowerCase().includes(q);
+    return matchesCat && matchesQuery;
+  });
+
+  grid.innerHTML = filtered.map(p => {
+    const hasStock = Number.isFinite(Number(p.stock));
+    const available = getAvailableStock(p);
+    const outOfStock = hasStock && available <= 0;
+    const lowStock = hasStock && available > 0 && available <= 5;
+    const imgSrc = safeImageUrl(p.image_url);
+    const catId = detectProductCategory(p);
+    const catLabel = getCategoryLabel(catId);
+
+    let stockHtml = '';
+    if (hasStock) {
+      if (outOfStock) stockHtml = `<span class="stock-badge out">Agotado</span>`;
+      else if (lowStock) stockHtml = `<span class="stock-badge low">¡Últimas ${available} uds!</span>`;
+      else stockHtml = `<span class="stock-badge ok">Disponibles: ${available}</span>`;
+    }
+
+    return `
+      <article class="card hoverable product-card">
+        <div>
+          <div class="product-img-box">
+            <span class="cat-tag">${escapeHtml(catLabel)}</span>
+            ${imgSrc
+              ? `<img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(p.name)}" onerror="this.remove()">`
+              : `<i data-lucide="sprout" style="width:42px;height:42px;opacity:.55"></i>`}
+          </div>
+          <h3>${escapeHtml(p.name)}</h3>
+          <p class="muted" style="margin:0;font-size:.9rem">${escapeHtml(cleanDescription(p.description))}</p>
+          ${stockHtml}
+        </div>
+        <div class="product-foot">
+          <span class="price">${money(p.price)}</span>
+          <button class="btn sm" ${outOfStock ? 'disabled' : ''} onclick="addToCart(${p.id})">
+            <i data-lucide="${outOfStock ? 'ban' : 'plus'}"></i>${outOfStock ? 'Sin stock' : 'Agregar'}
+          </button>
+        </div>
+      </article>
+    `;
+  }).join('') || `
+    <div class="card empty-state" style="grid-column:1/-1">
+      <div class="iconbox"><i data-lucide="search-x"></i></div>
+      <p class="muted" style="margin:0 0 12px">No encontramos insumos en esta categoría o búsqueda.</p>
+      <button class="btn secondary sm" onclick="selectedCategory='todos';productSearchQuery='';go('tienda')">Ver todos los productos</button>
+    </div>
+  `;
+
+  lucide.createIcons();
+}
+
+function tienda() {
+  setTimeout(renderProductsGrid, 0);
+  return `
+    <div class="section-head">
+      <div>
+        <h2>Tienda de Insumos Botánicos</h2>
+        <p class="muted">Abonos orgánicos, fertilizantes NPK, sustratos, control de plagas y herramientas.</p>
+      </div>
+      <input
+        class="search-input"
+        placeholder="Buscar humus, NPK, perlita, neem..."
+        value="${escapeHtml(productSearchQuery)}"
+        oninput="productSearchQuery=this.value;renderProductsGrid()"
+      >
+    </div>
+
+    <div id="categoryChips" class="chip-bar">
+      ${CATEGORIES.map(c => `
+        <button type="button" data-cat="${c.id}" class="chip ${selectedCategory === c.id ? 'active' : ''}" onclick="setCategoryFilter('${c.id}')">
+          <i data-lucide="${c.icon}" style="width:15px;height:15px"></i>
+          <span>${c.label}</span>
+        </button>
+      `).join('')}
+    </div>
+
+    <div id="productsGrid" class="grid stagger"></div>
+  `;
+}
+
+function cartPage() {
+  const total = cart.reduce((s, x) => s + x.price * x.qty, 0);
+  return `
+    <div class="section-head">
+      <div>
+        <h2>${role === 'ventas' ? 'Caja / Cobro' : 'Mi carrito'}</h2>
+        <p class="muted">Revisa cantidades antes de confirmar.</p>
+      </div>
+      <button class="btn secondary sm" onclick="go('tienda')"><i data-lucide="arrow-left"></i>Seguir comprando</button>
+    </div>
+
+    <div class="card">
+      ${cart.length ? `
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th><th></th></tr>
+            </thead>
+            <tbody>
+              ${cart.map(x => `
+                <tr>
+                  <td><strong>${escapeHtml(x.name)}</strong></td>
+                  <td>${money(x.price)}</td>
+                  <td>
+                    <div class="qty-stepper">
+                      <button type="button" aria-label="Disminuir" onclick="updateCartQty(${x.id}, -1)">-</button>
+                      <span>${x.qty}</span>
+                      <button type="button" aria-label="Aumentar" onclick="updateCartQty(${x.id}, 1)">+</button>
+                    </div>
+                  </td>
+                  <td><strong>${money(x.price * x.qty)}</strong></td>
+                  <td style="text-align:right">
+                    <button type="button" class="btn secondary xs" aria-label="Quitar" onclick="removeFromCart(${x.id})">
+                      <i data-lucide="trash-2"></i>
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="field" style="max-width:320px;margin-top:18px">
+          <label for="paymentMethod">Método de pago</label>
+          <select id="paymentMethod">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Nequi / Daviplata">Nequi / Daviplata</option>
+            <option value="Tarjeta">Tarjeta</option>
+            <option value="Transferencia">Transferencia</option>
+          </select>
+        </div>
+
+        <div class="cart-total-row">
+          <div style="font-size:1.25rem"><strong>Total: ${money(total)}</strong></div>
+          <button id="checkoutBtn" class="btn" onclick="checkout()"><i data-lucide="check-circle-2"></i>Confirmar compra</button>
+        </div>
+      ` : `
+        <div class="empty-state">
+          <div class="iconbox"><i data-lucide="shopping-cart"></i></div>
+          <p class="muted" style="margin:0 0 14px">Tu carrito está vacío por ahora.</p>
+          <button class="btn sm" onclick="go('tienda')">Explorar catálogo</button>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+async function checkout() {
+  if (!cart.length) return;
+  const payment_method = $('paymentMethod') ? $('paymentMethod').value : 'Efectivo';
+  const btn = $('checkoutBtn');
+  if (btn) btn.disabled = true;
+
+  try {
+    await apiFetch('/api/ventas', {
+      method: 'POST',
+      body: JSON.stringify({
+        payment_method,
+        items: cart.map(x => ({ product_id: x.id, quantity: x.qty }))
+      })
+    });
+    cart = [];
+    saveCart();
+    await refreshData();
+    toast('Compra registrada correctamente.');
+    go(role === 'ventas' ? 'ventas' : 'tienda');
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function misdiagnosticos() {
+  return `
+    <div class="section-head">
+      <div>
+        <h2>${role === 'admin' ? 'Historial de diagnósticos' : 'Mis diagnósticos'}</h2>
+        <p class="muted">Evaluaciones registradas en la plataforma.</p>
+      </div>
+      ${role === 'cliente' ? `<button class="btn sm" onclick="go('diagnostico')"><i data-lucide="plus"></i>Nuevo diagnóstico</button>` : ''}
+    </div>
+    <div class="card">
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Planta</th><th>Síntoma</th><th>Resultado</th></tr></thead>
+          <tbody>
+            ${diagnoses.map(d => `
+              <tr>
+                <td><strong>${escapeHtml(d.plant_name || '')}</strong></td>
+                <td>${escapeHtml(d.symptom || '')}</td>
+                <td>${escapeHtml(d.diagnosis || d.result || '')}</td>
+              </tr>
+            `).join('') || '<tr><td colspan="3" class="muted">Sin diagnósticos registrados.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function adminPage() {
+  const totalRevenue = salesHistory.reduce((acc, s) => acc + (Number(s.total) || 0), 0);
+  const lowStockCount = inventory.filter(p => Number.isFinite(Number(p.stock)) && Number(p.stock) <= 5).length;
+
+  return `
+    <div class="section-head">
+      <div>
+        <h2>Panel de administración</h2>
+        <p class="muted">Resumen general de operación de PlantIA.</p>
+      </div>
+      <button class="btn sm" onclick="go('inventario')"><i data-lucide="plus-circle"></i>Gestionar abonos e insumos</button>
+    </div>
+    <div class="grid stagger">
+      <article class="card hoverable">
+        <div class="iconbox"><i data-lucide="boxes"></i></div>
+        <h3>Insumos en catálogo</h3>
+        <p class="stat-value">${inventory.length}</p>
+        <p class="muted" style="margin:6px 0 0;font-size:.84rem">${lowStockCount} con stock bajo</p>
+      </article>
+      <article class="card hoverable">
+        <div class="iconbox"><i data-lucide="clipboard-list"></i></div>
+        <h3>Diagnósticos IA</h3>
+        <p class="stat-value">${diagnoses.length}</p>
+      </article>
+      <article class="card hoverable">
+        <div class="iconbox"><i data-lucide="receipt"></i></div>
+        <h3>Ventas registradas</h3>
+        <p class="stat-value">${salesHistory.length}</p>
+        <p class="muted" style="margin:6px 0 0;font-size:.84rem">Ingresos: ${money(totalRevenue)}</p>
+      </article>
+    </div>
+  `;
+}
+
+function salesPage() {
+  return `
+    <div class="section-head">
+      <div>
+        <h2>Historial de ventas</h2>
+        <p class="muted">Transacciones realizadas.</p>
+      </div>
+      ${role === 'ventas' ? `<button class="btn sm" onclick="go('tienda')"><i data-lucide="plus"></i>Nueva venta</button>` : ''}
+    </div>
+    <div class="card">
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>ID</th><th>Método</th><th>Total</th></tr></thead>
+          <tbody>
+            ${salesHistory.map(s => `
+              <tr>
+                <td><strong>#${escapeHtml(s.id)}</strong></td>
+                <td>${escapeHtml(s.payment_method || 'N/A')}</td>
+                <td><strong>${money(s.total)}</strong></td>
+              </tr>
+            `).join('') || '<tr><td colspan="3" class="muted">Sin ventas registradas.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function inventoryPage() {
+  const existingNames = new Set(inventory.map(p => String(p.name || '').toLowerCase().trim()));
+  const missingPresets = BOTANICAL_PRESETS.filter(p => !existingNames.has(p.name.toLowerCase().trim()));
+
+  return `
+    <div class="section-head">
+      <div>
+        <h2>Inventario de Abonos e Insumos</h2>
+        <p class="muted">Crea productos personalizados o carga insumos botánicos prediseñados en un clic.</p>
+      </div>
+      ${missingPresets.length ? `
+        <button id="seedAllBtn" class="btn gold sm" onclick="seedAllBotanicalPresets()">
+          <i data-lucide="sparkles"></i>Cargar ${missingPresets.length} insumos sugeridos
+        </button>
+      ` : ''}
+    </div>
+
+    ${missingPresets.length ? `
+      <section class="card" style="margin-bottom:20px">
+        <h3 style="margin-bottom:4px">Plantillas rápidas de abonos y cuidado</h3>
+        <p class="muted" style="margin:0;font-size:.88rem">Haz clic en <strong>+ Agregar</strong> para publicar cualquiera de estos insumos directamente en tu tienda.</p>
+        <div class="preset-list">
+          ${missingPresets.map((preset, idx) => `
+            <div class="preset-item">
+              <div>
+                <span class="role-badge" style="margin-bottom:4px">${escapeHtml(getCategoryLabel(preset.category))}</span>
+                <strong>${escapeHtml(preset.name)}</strong>
+                <small>${money(preset.price)} · Stock: ${preset.stock}</small>
+              </div>
+              <button type="button" class="btn xs" onclick="addPresetProduct(${idx})">
+                <i data-lucide="plus"></i>Agregar al catálogo
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    ` : ''}
+
+    <div class="diagnostic-layout">
+      <section class="card">
+        <h3>Crear nuevo insumo</h3>
+        <div class="field">
+          <label for="newProdCategory">Categoría botánica</label>
+          <select id="newProdCategory">
+            ${CATEGORIES.filter(c => c.id !== 'todos').map(c => `
+              <option value="${c.id}">${c.label}</option>
+            `).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label for="newProdName">Nombre del producto</label>
+          <input id="newProdName" placeholder="Ej. Humus de lombriz 2kg, Abono NPK, Perlita...">
+        </div>
+        <div class="field">
+          <label for="newProdPrice">Precio (COP)</label>
+          <input id="newProdPrice" type="number" min="0" step="100" placeholder="22000">
+        </div>
+        <div class="field">
+          <label for="newProdStock">Stock inicial</label>
+          <input id="newProdStock" type="number" min="0" step="1" value="15">
+        </div>
+        <div class="field">
+          <label for="newProdDesc">Descripción y modo de uso</label>
+          <textarea id="newProdDesc" rows="3" placeholder="Composición, beneficios y frecuencia de aplicación..."></textarea>
+        </div>
+        <div class="field">
+          <label for="newProdImg">URL de imagen (opcional)</label>
+          <input id="newProdImg" type="url" placeholder="https://...">
+        </div>
+        <button id="createProductBtn" class="btn full" onclick="createProduct()">
+          <i data-lucide="plus-circle"></i>Guardar en inventario
+        </button>
+      </section>
+
+      <section class="card">
+        <h3>Catálogo actual (${inventory.length})</h3>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th></tr></thead>
+            <tbody>
+              ${inventory.map(p => {
+                const st = Number(p.stock);
+                const badgeClass = !Number.isFinite(st) ? 'ok' : st <= 0 ? 'out' : st <= 5 ? 'low' : 'ok';
+                const catLabel = getCategoryLabel(detectProductCategory(p));
+                return `
+                  <tr>
+                    <td><strong>${escapeHtml(p.name)}</strong></td>
+                    <td><span class="role-badge">${escapeHtml(catLabel)}</span></td>
+                    <td>${money(p.price)}</td>
+                    <td><span class="stock-badge ${badgeClass}" style="margin:0">${escapeHtml(p.stock ?? '-')}</span></td>
+                  </tr>
+                `;
+              }).join('') || '<tr><td colspan="4" class="muted">Sin productos aún.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+async function addPresetProduct(missingIndex) {
+  const existingNames = new Set(inventory.map(p => String(p.name || '').toLowerCase().trim()));
+  const missingPresets = BOTANICAL_PRESETS.filter(p => !existingNames.has(p.name.toLowerCase().trim()));
+  const preset = missingPresets[missingIndex];
+  if (!preset) return;
+
+  try {
+    await apiFetch('/api/productos', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: preset.name,
+        price: preset.price,
+        stock: preset.stock,
+        description: preset.description,
+        image_url: null
+      })
+    });
+    await loadProducts();
+    go('inventario');
+    toast(`${preset.name} agregado al catálogo.`);
+  } catch (err) {
+    toast(err.message);
+  }
+}
+
+async function seedAllBotanicalPresets() {
+  const existingNames = new Set(inventory.map(p => String(p.name || '').toLowerCase().trim()));
+  const missingPresets = BOTANICAL_PRESETS.filter(p => !existingNames.has(p.name.toLowerCase().trim()));
+  if (!missingPresets.length) return;
+
+  const btn = $('seedAllBtn');
+  if (btn) btn.disabled = true;
+
+  try {
+    for (const preset of missingPresets) {
+      await apiFetch('/api/productos', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: preset.name,
+          price: preset.price,
+          stock: preset.stock,
+          description: preset.description,
+          image_url: null
+        })
+      });
+    }
+    await loadProducts();
+    go('inventario');
+    toast(`Se agregaron ${missingPresets.length} insumos botánicos.`);
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+async function createProduct() {
+  const category = $('newProdCategory').value;
+  const catLabel = getCategoryLabel(category);
+  const name = $('newProdName').value.trim();
+  const price = Number($('newProdPrice').value);
+  const stock = Number($('newProdStock').value);
+  const rawDesc = $('newProdDesc').value.trim();
+  const description = `[${catLabel}] ${rawDesc}`.trim();
+  const rawImg = $('newProdImg').value.trim();
+  const btn = $('createProductBtn');
+
+  if (!name) {
+    toast('Escribe el nombre del producto.');
+    return;
+  }
+  if (!Number.isFinite(price) || price < 0) {
+    toast('Ingresa un precio válido.');
+    return;
+  }
+  if (!Number.isInteger(stock) || stock < 0) {
+    toast('Ingresa un stock válido.');
+    return;
+  }
+  if (rawImg && !safeImageUrl(rawImg)) {
+    toast('La URL de imagen debe iniciar con http:// o https://');
+    return;
+  }
+
+  btn.disabled = true;
+  try {
+    await apiFetch('/api/productos', {
+      method: 'POST',
+      body: JSON.stringify({ name, price, stock, description, image_url: rawImg || null })
+    });
+    await loadProducts();
+    go('inventario');
+    toast('Insumo agregado al inventario.');
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function diagnosesPage() {
+  return misdiagnosticos();
+}
+
+const origGo = go;
+go = function(v) {
+  origGo(v);
+  if (v === 'guia') calculateFertilizerDose();
+};
+
+restoreSession();
+lucide.createIcons();
+</script>
+</body>
+</html>
